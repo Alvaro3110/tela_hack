@@ -12,7 +12,8 @@ export async function classifyTranscript(transcript: string): Promise<Partial<Em
       clientOnlyTranscript: transcript,
       agentOnlyTranscript: "",
       externalAgents: {},
-      source: "manual"
+      source: "manual",
+      normalizationWarnings: []
     }
   });
 }

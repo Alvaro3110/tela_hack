@@ -20,6 +20,12 @@ Parar com segurança:
 
 - `Ctrl + C` no terminal do `npm run dev:light`
 
+## Demo SilentGuard
+
+1. Clique em **Demo principal — pedido silencioso**.
+2. Aguarde os cards da dashboard popular a triagem simulada.
+3. Interaja com respostas rápidas, checklist, **Confirmar simulação** e **Pedir mais informações**.
+
 ## Teste rápido de webhook real
 
 Com o servidor rodando:

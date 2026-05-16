@@ -54,12 +54,12 @@ export function normalizeCallWebhook(payload: RawCallWebhookPayload): Normalized
     .join("\n");
 
   const clientOnlyTranscript = rawTranscriptTurns
-    .filter((turn) => isClientTurn(turn as RawCallWebhookPayload["transcript"][number]))
+    .filter((turn) => isClientTurn(turn))
     .map((turn) => turn.text)
     .join("\n");
 
   const agentOnlyTranscript = rawTranscriptTurns
-    .filter((turn) => isAgentTurn(turn as RawCallWebhookPayload["transcript"][number]))
+    .filter((turn) => isAgentTurn(turn))
     .map((turn) => turn.text)
     .join("\n");
 
