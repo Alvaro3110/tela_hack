@@ -11,12 +11,13 @@ function isObj(value: unknown): value is Record<string, unknown> {
 
 export function validateWebhookPayload(payload: unknown): payload is RawCallWebhookPayload {
   if (!isObj(payload) || !isObj(payload.call) || !Array.isArray(payload.transcript)) return false;
-  if (typeof payload.call.id !== "string" || !payload.call.id.trim()) return false;
+  if (!("id" in payload.call)) return false;
+  const id = payload.call.id;
+  if (!(typeof id === "string" || typeof id === "number")) return false;
+  if (!String(id).trim()) return false;
+  if (payload.transcript.length === 0) return false;
 
-  return payload.transcript.every((turn) => {
-    if (!isObj(turn)) return false;
-    return [turn.id, turn.channel, turn.speaker, turn.text, turn.timestamp].every((v) => typeof v === "string");
-  });
+  return payload.transcript.every((turn) => isObj(turn) && "id" in turn);
 }
 
 export async function ingestWebhook(payload: RawCallWebhookPayload): Promise<EmergencyOccurrence> {

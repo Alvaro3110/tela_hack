@@ -291,7 +291,8 @@ export function VozGuardCockpit() {
       clickOutsideToClose={false}
       labels={{
         title: "Copilot Operacional",
-        initial: "Entrada principal via webhook completo. Posso explicar classificação, agentes externos, localização e briefing."
+        initial:
+          "A entrada principal é webhook. A cada evento recebido, eu atualizo explicações de classificação, risco, localização, agentes externos e briefing operacional."
       }}
       instructions="Use sempre decisão humana final. Nunca acione serviços reais."
     >
@@ -313,6 +314,7 @@ export function VozGuardCockpit() {
               <div className={styles.kv}>Destino: {occurrence?.toNumberMasked ?? "-"}</div>
               <div className={styles.kv}>Última fala cliente: {occurrence?.lastMessage ?? "-"}</div>
               <div className={styles.kv}>Webhook: {occurrence ? "Recebido" : "Aguardando"}</div>
+              <div className={styles.kv}>Warnings normalização: {occurrence?.normalizationWarnings.length ?? 0}</div>
             </div>
 
             <div className={styles.panel}>
@@ -388,6 +390,21 @@ export function VozGuardCockpit() {
                   </ul>
                 ) : (
                   <p className={styles.kv}>Sem dados de agents externos neste payload.</p>
+                )}
+              </article>
+
+              <article className={styles.panel}>
+                <h3 className={styles.title}>Observabilidade de ingestão</h3>
+                <p className={styles.kv}>Fonte do payload: {occurrence?.source ?? "-"}</p>
+                <p className={styles.kv}>Atualização: {formatTime(occurrence?.updatedAt)}</p>
+                {(occurrence?.normalizationWarnings?.length ?? 0) > 0 ? (
+                  <ul className={styles.list}>
+                    {(occurrence?.normalizationWarnings ?? []).map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className={styles.kv}>Sem ajustes de normalização.</p>
                 )}
               </article>
 

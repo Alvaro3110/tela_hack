@@ -4,8 +4,11 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "next dev apps/web -p 3000",
+    "dev:light": "next dev apps/web -p 3000 --hostname 127.0.0.1",
     "build": "next build apps/web",
-    "start": "next start apps/web -p 3000"
+    "start": "next start apps/web -p 3000",
+    "test:webhook:real": "node scripts/send-webhook-sample.mjs samples/call-webhook-real-logistica.json",
+    "test:webhook:all": "node scripts/send-webhook-samples.mjs"
   },
   "dependencies": {
     "@copilotkit/react-core": "latest",

@@ -55,6 +55,13 @@ export async function buildOccurrence(input: {
       severity: riskSeverity(classification.riskLevel ?? "indeterminado")
     }
   );
+  if (normalized.normalizationWarnings.length) {
+    timeline.push({
+      time: nowIso(),
+      label: `Normalização tolerante aplicou ${normalized.normalizationWarnings.length} ajuste(s).`,
+      severity: "warning"
+    });
+  }
 
   const occurrence: EmergencyOccurrence = {
     id: previous?.id ?? makeId(normalized.callId),
@@ -103,6 +110,7 @@ export async function buildOccurrence(input: {
       classification.analysisSummary ?? "Chamada recebida e em triagem. Aguardando dados adicionais para decisão operacional.",
     supportPoints: [],
     source: normalized.source,
+    normalizationWarnings: normalized.normalizationWarnings,
     simulationMode: true,
     receivedAt: previous?.receivedAt ?? time,
     updatedAt: nowIso()

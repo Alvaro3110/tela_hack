@@ -1,0 +1,249 @@
+{
+  "call": {
+    "id": "529cee95-2a7b-4b21-9ff2-2cdbb0762752",
+    "conversation_id": "conv_3301krp8rvvrefnryqb17wqcv3xm",
+    "agent_id": "agent_4401ka59wz39exv9dx7a8fteje88",
+    "from_number": "+5521987162377",
+    "to_number": "+551140402737",
+    "status": "done",
+    "started_at": "2026-05-15T16:51:02.064+00:00",
+    "ended_at": "2026-05-15T16:57:43.184+00:00",
+    "duration_seconds": 401,
+    "created_at": "2026-05-15T16:51:02.307344+00:00",
+    "updated_at": "2026-05-15T16:57:43.304729+00:00",
+    "title": null,
+    "recipient_email": null,
+    "email_sent_at": null,
+    "share_token": null,
+    "share_enabled": false
+  },
+  "geo": {
+    "from_city": null,
+    "from_state": null,
+    "from_country": null,
+    "from_zip": null
+  },
+  "counts": {
+    "segments": 22,
+    "client_turns": 11,
+    "agent_turns": 11
+  },
+  "agents": {
+    "sentiment": {
+      "status": "ready",
+      "data": {
+        "label": "frustrado",
+        "score": 0.85,
+        "rationale": "O cliente demonstra impaciência e ansiedade devido à falta de rastreio e a urgência da viagem, chegando a solicitar o cancelamento imediato."
+      },
+      "updatedAt": 1778955237083,
+      "error": null
+    },
+    "classification": {
+      "status": "ready",
+      "data": {
+        "category": "Logística e Entrega",
+        "tags": [
+          "atraso na entrega",
+          "rastreio indisponível",
+          "cancelamento de pedido",
+          "headset",
+          "prazo de entrega",
+          "visibilidade de pedido"
+        ]
+      },
+      "updatedAt": 1778955237121,
+      "error": null
+    },
+    "routing": {
+      "status": "ready",
+      "data": {
+        "rationale": "O cliente solicita o cancelamento imediato devido à falta de visibilidade no rastreio e ao risco de não receber o produto (headset) antes de sua viagem. O caso envolve falha logística e urgência.",
+        "teams": [
+          "Logística N2 (Rastreio)",
+          "Retenção e Cancelamento"
+        ]
+      },
+      "updatedAt": 1778955238718,
+      "error": null
+    },
+    "supervisor": {
+      "status": "ready",
+      "data": {
+        "score": 3.5,
+        "strengths": [
+          "Capacidade de transcrição e reconhecimento de dados específicos (e-mail, protocolo, produto).",
+          "Manutenção do tom cordial e personalizado (uso do nome solicitado 'Kerr').",
+          "Condução correta do fluxo de cancelamento após entender a impossibilidade de entrega no prazo."
+        ],
+        "improvements": [
+          "O tempo de resposta entre a solicitação do cliente e a resolução final parece longo demais, repetindo informações que o cliente já forneceu no primeiro turno.",
+          "Evitar perguntas redundantes: o cliente informou nome, protocolo, data e produto logo no início; o sistema perguntou um por um novamente.",
+          "A empatia pode ser mais direta: em vez de perguntar se o impacto é 'financeiro, emocional ou operacional', deve-se reconhecer a frustração de uma viagem iminente."
+        ]
+      },
+      "updatedAt": 1778955240301,
+      "error": null
+    }
+  },
+  "summary": {
+    "summary_md": null,
+    "summary_json": null
+  },
+  "transcript": [
+    {
+      "id": "3931c382-5375-4ffc-a727-ca3eac184769",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Olá! Sou a Lucí do canal de atendimento! Estou aqui para te auxiliar!... Por gentileza, me informe seu nome?",
+      "timestamp": "2026-05-15T16:51:02.000Z"
+    },
+    {
+      "id": "fe4a7d74-786b-4d3b-9667-d6947fc709f3",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Oi, Lucí! Aqui é o Ricardo Ker, tá? Pode me chamar de Ker. K-E-R-R.",
+      "timestamp": "2026-05-15T16:51:12.000Z"
+    },
+    {
+      "id": "c8cb6b0e-0bc4-41be-8418-7ca304025034",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "[happy] Olá, Kerr! [happy] É um prazer te atender. [happy] Para que eu possa te ajudar, preciso que você me explique o que aconteceu. Qual é o motivo do seu contato hoje?",
+      "timestamp": "2026-05-15T16:51:21.000Z"
+    },
+    {
+      "id": "5f7e0928-dbea-4d70-8e0d-7d751967a732",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Olha, eu tô com um problema na entrega de vocês. Não aparece a entrega no link de rastreio e eu tô sem saber se vai chegar hoje.",
+      "timestamp": "2026-05-15T16:51:34.000Z"
+    },
+    {
+      "id": "792c15f6-a4e3-4b35-b365-0496ce73a82c",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Entendi, Kerr. Você está preocupado com o status da sua entrega. Você poderia me informar o número do pedido ou protocolo e a data da compra?",
+      "timestamp": "2026-05-15T16:51:55.000Z"
+    },
+    {
+      "id": "065d2d00-81a7-4526-813e-ff3c92015935",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "O protocolo foi 04571. A compra foi no dia 10 e o produto é um headset.",
+      "timestamp": "2026-05-15T16:52:25.000Z"
+    },
+    {
+      "id": "82acae14-32de-43fe-8485-c9d072c65c06",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Perfeito, Kerr. E qual o impacto que isso está te causando?",
+      "timestamp": "2026-05-15T16:52:53.000Z"
+    },
+    {
+      "id": "cf9a494c-0c35-4379-9a69-5ae4cff06a6b",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Eu preciso desse item para viajar.",
+      "timestamp": "2026-05-15T16:53:21.000Z"
+    },
+    {
+      "id": "b4801ed5-5158-4bca-9bfb-8ba77da45db0",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Vou registrar. Está correto que o problema é na entrega do headset com protocolo 04571?",
+      "timestamp": "2026-05-15T16:53:36.000Z"
+    },
+    {
+      "id": "2063965f-74f9-47ed-9f1f-13ecfb417138",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Sim, está certo.",
+      "timestamp": "2026-05-15T16:54:00.000Z"
+    },
+    {
+      "id": "555233a6-70b8-415a-acf6-27d3d8d42000",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "O retorno será enviado para seu e-mail. Qual o melhor e-mail para contato?",
+      "timestamp": "2026-05-15T16:54:03.000Z"
+    },
+    {
+      "id": "4c49597c-676b-4c94-a542-7365ac70d0af",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Meu e-mail é ricardo.kerr@gmail.com.",
+      "timestamp": "2026-05-15T16:54:19.000Z"
+    },
+    {
+      "id": "e681a364-e213-40d7-8dd6-6bf119325c24",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Perfeito. Em até 24 horas você receberá a resposta.",
+      "timestamp": "2026-05-15T16:54:34.000Z"
+    },
+    {
+      "id": "0cfb39b6-a6b6-469b-b187-5d4e0e4fb91d",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "É para entregar hoje. Se não vier hoje, eu preciso cancelar.",
+      "timestamp": "2026-05-15T16:54:53.000Z"
+    },
+    {
+      "id": "6429aceb-b64a-4eec-8377-8c89a1a3b482",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Entendo sua urgência e frustração. Vou verificar opções para agilizar.",
+      "timestamp": "2026-05-15T16:55:12.000Z"
+    },
+    {
+      "id": "eaa9794d-2455-450d-aa2d-5eb47034eaba",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "...",
+      "timestamp": "2026-05-15T16:55:33.000Z"
+    },
+    {
+      "id": "4e113eb4-e7de-406d-ba09-97017c1a3e1d",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Kerr, você ainda está aí?",
+      "timestamp": "2026-05-15T16:55:47.000Z"
+    },
+    {
+      "id": "237751b6-1f9d-44d1-adbe-7569c6c706bb",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Estou. Vê as opções?",
+      "timestamp": "2026-05-15T16:55:49.000Z"
+    },
+    {
+      "id": "2fe8fcaf-ee6b-43e6-81be-b5b486ba4fce",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Infelizmente, não consigo garantir a entrega para hoje. Posso ajudar com o cancelamento.",
+      "timestamp": "2026-05-15T16:55:59.000Z"
+    },
+    {
+      "id": "17eb44b9-3294-45f1-84c9-38d94e667940",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Quero cancelar agora porque não tenho visibilidade da entrega.",
+      "timestamp": "2026-05-15T16:56:32.000Z"
+    },
+    {
+      "id": "e1fbcbd8-401d-41e1-a6c2-c114930857f3",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Para formalizar, você confirma o cancelamento do pedido?",
+      "timestamp": "2026-05-15T16:56:53.000Z"
+    },
+    {
+      "id": "08c04cfb-7e55-4d05-aca9-2064fd126664",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Sim, confirmo.",
+      "timestamp": "2026-05-15T16:57:13.000Z"
+    }
+  ]
+}

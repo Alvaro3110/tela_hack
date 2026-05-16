@@ -1,24 +1,50 @@
 import { maskPhone, sanitizeTranscript } from "./privacy";
 import type { NormalizedCallInput, RawCallWebhookPayload } from "./types";
 
-function isClientTurn(turn: RawCallWebhookPayload["transcript"][number]) {
+function toSafeString(value: unknown) {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return "";
+}
+
+function isClientTurn(turn: NormalizedCallInput["rawTranscriptTurns"][number]) {
   return turn.speaker === "client" || turn.channel === "mic";
 }
 
-function isAgentTurn(turn: RawCallWebhookPayload["transcript"][number]) {
+function isAgentTurn(turn: NormalizedCallInput["rawTranscriptTurns"][number]) {
   return turn.speaker === "agent" || turn.channel === "system";
 }
 
-export function normalizeCallWebhook(payload: RawCallWebhookPayload): NormalizedCallInput {
-  const turns = Array.isArray(payload.transcript) ? payload.transcript : [];
+function normalizeTimestamp(value: unknown) {
+  if (typeof value === "number") return new Date(value).toISOString();
+  if (typeof value === "string" && value.trim()) return value;
+  return new Date().toISOString();
+}
 
-  const rawTranscriptTurns = turns.map((turn) => ({
-    id: turn.id,
-    speaker: turn.speaker,
-    channel: turn.channel,
-    text: sanitizeTranscript(turn.text ?? ""),
-    timestamp: turn.timestamp
-  }));
+export function normalizeCallWebhook(payload: RawCallWebhookPayload): NormalizedCallInput {
+  const warnings: string[] = [];
+  const turns = Array.isArray(payload.transcript) ? payload.transcript : [];
+  if (!Array.isArray(payload.transcript)) {
+    warnings.push("Campo transcript ausente ou inválido. Usando lista vazia.");
+  }
+
+  const rawTranscriptTurns = turns.map((turn, index) => {
+    const id = toSafeString(turn.id) || `turn-${index + 1}`;
+    if (!toSafeString(turn.id)) warnings.push(`Turn ${index + 1}: id ausente. Gerado ${id}.`);
+
+    const speaker = toSafeString(turn.speaker).toLowerCase() || "unknown";
+    const channel = toSafeString(turn.channel).toLowerCase() || "unknown";
+    if (speaker === "unknown") warnings.push(`Turn ${id}: speaker ausente.`);
+    if (channel === "unknown") warnings.push(`Turn ${id}: channel ausente.`);
+
+    const text = sanitizeTranscript(toSafeString(turn.text));
+    if (!text.trim()) warnings.push(`Turn ${id}: texto vazio.`);
+
+    const timestamp = normalizeTimestamp(turn.timestamp);
+    if (!toSafeString(turn.timestamp)) warnings.push(`Turn ${id}: timestamp ausente, fallback aplicado.`);
+
+    return { id, speaker, channel, text, timestamp };
+  });
 
   const fullTranscript = rawTranscriptTurns
     .map((turn) => {
@@ -39,18 +65,23 @@ export function normalizeCallWebhook(payload: RawCallWebhookPayload): Normalized
 
   const lastClientMessage = [...rawTranscriptTurns]
     .reverse()
-    .find((turn) => isClientTurn(turn as RawCallWebhookPayload["transcript"][number]))?.text;
+    .find((turn) => isClientTurn(turn))?.text;
+
+  const callId = toSafeString(payload.call?.id).trim();
+  if (!callId) {
+    warnings.push("call.id ausente. Usando fallback CALL-UNKNOWN.");
+  }
 
   return {
-    callId: payload.call.id,
-    conversationId: payload.call.conversation_id,
-    agentId: payload.call.agent_id,
-    callStatus: payload.call.status,
-    startedAt: payload.call.started_at,
-    endedAt: payload.call.ended_at,
-    durationSeconds: payload.call.duration_seconds,
-    fromNumberMasked: maskPhone(payload.call.from_number),
-    toNumberMasked: maskPhone(payload.call.to_number),
+    callId: callId || "CALL-UNKNOWN",
+    conversationId: toSafeString(payload.call?.conversation_id) || undefined,
+    agentId: toSafeString(payload.call?.agent_id) || undefined,
+    callStatus: toSafeString(payload.call?.status) || undefined,
+    startedAt: toSafeString(payload.call?.started_at) || undefined,
+    endedAt: toSafeString(payload.call?.ended_at) || undefined,
+    durationSeconds: typeof payload.call?.duration_seconds === "number" ? payload.call.duration_seconds : undefined,
+    fromNumberMasked: maskPhone(toSafeString(payload.call?.from_number) || undefined),
+    toNumberMasked: maskPhone(toSafeString(payload.call?.to_number) || undefined),
     rawTranscriptTurns,
     fullTranscript,
     clientOnlyTranscript,
@@ -69,14 +100,15 @@ export function normalizeCallWebhook(payload: RawCallWebhookPayload): Normalized
       zip: payload.geo?.from_zip
     },
     counts: {
-      segments: payload.counts?.segments,
-      clientTurns: payload.counts?.client_turns,
-      agentTurns: payload.counts?.agent_turns
+      segments: typeof payload.counts?.segments === "number" ? payload.counts?.segments : undefined,
+      clientTurns: typeof payload.counts?.client_turns === "number" ? payload.counts?.client_turns : undefined,
+      agentTurns: typeof payload.counts?.agent_turns === "number" ? payload.counts?.agent_turns : undefined
     },
-    source: "external-transcriber",
+    source: toSafeString(payload.source) || "external-transcriber",
     summary: {
       summaryMd: payload.summary?.summary_md,
       summaryJson: payload.summary?.summary_json
-    }
+    },
+    normalizationWarnings: Array.from(new Set(warnings))
   };
 }

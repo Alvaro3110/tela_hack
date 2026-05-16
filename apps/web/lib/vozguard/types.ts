@@ -38,7 +38,7 @@ export type SupportPoint = {
 
 export type RawCallWebhookPayload = {
   call: {
-    id: string;
+    id: string | number;
     conversation_id?: string;
     agent_id?: string;
     from_number?: string;
@@ -111,12 +111,13 @@ export type RawCallWebhookPayload = {
     summary_json?: unknown | null;
   };
   transcript: Array<{
-    id: string;
-    channel: "system" | "mic" | string;
-    speaker: "agent" | "client" | string;
-    text: string;
-    timestamp: string;
+    id: string | number;
+    channel?: "system" | "mic" | string;
+    speaker?: "agent" | "client" | string;
+    text?: string | null;
+    timestamp?: string | number | null;
   }>;
+  source?: string;
 };
 
 export type NormalizedCallInput = {
@@ -176,6 +177,7 @@ export type NormalizedCallInput = {
     summaryMd?: string | null;
     summaryJson?: unknown | null;
   };
+  normalizationWarnings: string[];
 };
 
 export type EmergencyOccurrence = {
@@ -239,6 +241,7 @@ export type EmergencyOccurrence = {
   analysisSummary: string;
   supportPoints: SupportPoint[];
   source: string;
+  normalizationWarnings: string[];
   simulationMode: boolean;
   receivedAt: string;
   updatedAt: string;

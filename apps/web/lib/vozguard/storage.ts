@@ -40,7 +40,7 @@ class VozGuardStorage {
 
   saveWebhookEvent(payload: RawCallWebhookPayload) {
     const stmt = this.db.prepare(`INSERT INTO webhook_events (call_id, received_at, payload) VALUES (?, ?, ?)`);
-    stmt.run(payload.call.id, payload.call.started_at ?? new Date().toISOString(), JSON.stringify(payload));
+    stmt.run(String(payload.call.id), payload.call.started_at ?? new Date().toISOString(), JSON.stringify(payload));
   }
 
   upsertOccurrence(occurrence: EmergencyOccurrence) {
