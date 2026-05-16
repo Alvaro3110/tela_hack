@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# build/cache
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+# environment
+.env
+.env.local
+apps/web/.env
+
+# local data
+apps/web/.data/
+
+# editor/system
+.DS_Store
+.vscode/
+.agents/
+.codex/

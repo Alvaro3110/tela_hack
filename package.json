@@ -1,0 +1,23 @@
+{
+  "name": "example-copilotkit-mcp",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "next dev apps/web -p 3000",
+    "build": "next build apps/web",
+    "start": "next start apps/web -p 3000"
+  },
+  "dependencies": {
+    "@copilotkit/react-core": "latest",
+    "@copilotkit/react-ui": "latest",
+    "@copilotkit/runtime": "latest",
+    "next": "14.2.5",
+    "openai": "latest",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "typescript": "6.0.3"
+  }
+}
