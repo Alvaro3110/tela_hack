@@ -1,13 +1,13 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import type { CallTranscriptWebhookPayload, EmergencyOccurrence } from "./types";
+import type { EmergencyOccurrence, RawCallWebhookPayload } from "./types";
 
 type SnapshotShape = {
   updatedAt: string;
   latestCallId?: string;
   occurrences: EmergencyOccurrence[];
-  events: CallTranscriptWebhookPayload[];
+  events: RawCallWebhookPayload[];
 };
 
 const DATA_DIR = path.join(process.cwd(), "apps", "web", ".data");
@@ -38,9 +38,9 @@ class VozGuardStorage {
     `);
   }
 
-  saveWebhookEvent(payload: CallTranscriptWebhookPayload) {
+  saveWebhookEvent(payload: RawCallWebhookPayload) {
     const stmt = this.db.prepare(`INSERT INTO webhook_events (call_id, received_at, payload) VALUES (?, ?, ?)`);
-    stmt.run(payload.callId, payload.timestamp, JSON.stringify(payload));
+    stmt.run(payload.call.id, payload.call.started_at ?? new Date().toISOString(), JSON.stringify(payload));
   }
 
   upsertOccurrence(occurrence: EmergencyOccurrence) {
@@ -86,10 +86,10 @@ class VozGuardStorage {
     return rows.map((row) => JSON.parse(row.data) as EmergencyOccurrence);
   }
 
-  listWebhookEvents(limit = 100): CallTranscriptWebhookPayload[] {
+  listWebhookEvents(limit = 100): RawCallWebhookPayload[] {
     const stmt = this.db.prepare(`SELECT payload FROM webhook_events ORDER BY id DESC LIMIT ?`);
     const rows = stmt.all(limit) as Array<{ payload: string }>;
-    return rows.map((row) => JSON.parse(row.payload) as CallTranscriptWebhookPayload);
+    return rows.map((row) => JSON.parse(row.payload) as RawCallWebhookPayload);
   }
 
   patchOccurrence(

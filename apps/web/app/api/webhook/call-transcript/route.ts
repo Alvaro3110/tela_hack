@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           ok: false,
-          error: "Payload inválido. Campos obrigatórios: callId, timestamp, transcript, partial, source."
+          error: "Payload inválido. Formato exigido: { call, geo?, counts?, agents?, summary?, transcript[] }. O formato legado não é aceito."
         },
         { status: 400 }
       );

@@ -1,31 +1,51 @@
-import { buildOccurrenceFromWebhook } from "./classifier";
+import { buildOccurrence } from "./build-occurrence";
+import { classifyEmergencyCall } from "./classify-emergency-call";
+import { geocodeFromTranscript } from "./location-mcp";
+import { normalizeCallWebhook } from "./normalize-call-webhook";
 import { getVozGuardStorage } from "./storage";
-import type { CallTranscriptWebhookPayload, EmergencyOccurrence } from "./types";
+import type { EmergencyOccurrence, RawCallWebhookPayload } from "./types";
 
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
+function isObj(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
 }
 
-export function validateWebhookPayload(payload: unknown): payload is CallTranscriptWebhookPayload {
-  if (!payload || typeof payload !== "object") return false;
+export function validateWebhookPayload(payload: unknown): payload is RawCallWebhookPayload {
+  if (!isObj(payload) || !isObj(payload.call) || !Array.isArray(payload.transcript)) return false;
+  if (typeof payload.call.id !== "string" || !payload.call.id.trim()) return false;
 
-  const input = payload as Partial<CallTranscriptWebhookPayload>;
-
-  return (
-    isNonEmptyString(input.callId) &&
-    isNonEmptyString(input.timestamp) &&
-    isNonEmptyString(input.transcript) &&
-    typeof input.partial === "boolean" &&
-    isNonEmptyString(input.source)
-  );
+  return payload.transcript.every((turn) => {
+    if (!isObj(turn)) return false;
+    return [turn.id, turn.channel, turn.speaker, turn.text, turn.timestamp].every((v) => typeof v === "string");
+  });
 }
 
-export async function ingestWebhook(payload: CallTranscriptWebhookPayload): Promise<EmergencyOccurrence> {
+export async function ingestWebhook(payload: RawCallWebhookPayload): Promise<EmergencyOccurrence> {
   const storage = getVozGuardStorage();
   storage.saveWebhookEvent(payload);
 
-  const previous = storage.getOccurrence(payload.callId) ?? undefined;
-  const occurrence = await buildOccurrenceFromWebhook(payload, previous);
+  const normalized = normalizeCallWebhook(payload);
+
+  const classification = await classifyEmergencyCall({
+    transcript: normalized.clientOnlyTranscript,
+    fullTranscript: normalized.fullTranscript,
+    callMetadata: normalized
+  });
+
+  const location = await geocodeFromTranscript(normalized.clientOnlyTranscript || normalized.fullTranscript, {
+    cityHint: normalized.geoHint?.city,
+    stateHint: normalized.geoHint?.state,
+    countryHint: normalized.geoHint?.country,
+    zipHint: normalized.geoHint?.zip
+  });
+
+  const previous = storage.getOccurrence(normalized.callId) ?? undefined;
+
+  const occurrence = await buildOccurrence({
+    normalized,
+    classification,
+    location,
+    previous
+  });
 
   storage.upsertOccurrence(occurrence);
   return occurrence;

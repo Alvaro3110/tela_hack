@@ -1,0 +1,32 @@
+{
+  "call": {
+    "id": "CALL-LOST-001",
+    "conversation_id": "conv-CALL-LOST-001",
+    "agent_id": "agt-001",
+    "from_number": "+55 71 94444-2222",
+    "to_number": "+55 11 4000-0000",
+    "status": "completed",
+    "started_at": "2026-05-16T17:00:00Z",
+    "duration_seconds": 160
+  },
+  "geo": {
+    "from_city": "Salvador",
+    "from_state": "BA"
+  },
+  "transcript": [
+    {
+      "id": "1",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Tem um idoso confuso e perdido perto do Mercado Modelo, na Praça Visconde de Cayru.",
+      "timestamp": "2026-05-16T17:00:09Z"
+    },
+    {
+      "id": "2",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Ele não sabe o endereço e está sozinho.",
+      "timestamp": "2026-05-16T17:00:24Z"
+    }
+  ]
+}

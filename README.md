@@ -1,18 +1,18 @@
-# VozGuard AI — Webhook-First Cockpit
+# VozGuard AI — Webhook Real (Normalizar Primeiro, Classificar Depois)
 
-Este projeto entrega duas rotas:
+Este projeto contém:
 
-- `/`: exemplo mínimo de CopilotKit.
-- `/vozguard`: cockpit operacional webhook-first (SilentGuard/VozGuard).
+- `/`: exemplo mínimo CopilotKit
+- `/vozguard`: cockpit operacional webhook-first com payload completo de chamada
 
 ## Stack
 
 - Next.js + TypeScript
-- CopilotKit (`CopilotKit`, `CopilotSidebar`, `useCopilotReadable`, `useCopilotAction`)
-- MCP simulado (`location-mcp`)
-- Persistência local: SQLite primário + snapshot JSON espelho
+- CopilotKit (sidebar, readable state, actions)
+- MCP simulado de localização
+- Persistência local: SQLite + snapshot JSON
 
-## Como rodar
+## Executar
 
 ```bash
 cd example-copilotkit-mcp
@@ -20,131 +20,82 @@ npm install
 npm run dev
 ```
 
-Abra:
+Acessar:
 
 - `http://localhost:3000/`
 - `http://localhost:3000/vozguard`
 
-## Ambiente
+## Formato oficial do webhook
 
-Use `.env` na raiz:
+Endpoint:
 
-```bash
-cp .env.example .env
+- `POST /api/webhook/call-transcript`
+
+Formato esperado (resumo):
+
+```json
+{
+  "call": { "id": "..." },
+  "geo": { "from_city": "..." },
+  "counts": { "segments": 4 },
+  "agents": { "classification": { "data": { "category": "..." } } },
+  "summary": { "summary_md": "..." },
+  "transcript": [
+    {
+      "id": "1",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "...",
+      "timestamp": "..."
+    }
+  ]
+}
 ```
 
-Opcional para LLM real no CopilotKit runtime:
+Importante:
+
+- O formato legado simples (`callId/timestamp/transcript`) **não é aceito**.
+- O webhook retorna `400` para payload incompatível.
+
+## Testar com samples
+
+```bash
+curl -X POST http://localhost:3000/api/webhook/call-transcript \
+  -H "Content-Type: application/json" \
+  --data @samples/call-webhook-logistica.json
+```
+
+Arquivos disponíveis:
+
+- `samples/call-webhook-logistica.json`
+- `samples/call-webhook-violencia-domestica.json`
+- `samples/call-webhook-emergencia-medica.json`
+- `samples/call-webhook-idoso-perdido.json`
+- `samples/call-webhook-possivel-trote.json`
+
+Resultado esperado para logística:
+
+- payload normalizado
+- transcrição segmentada renderizada
+- análise externa exibida
+- triagem VozGuard => `fora_escopo`
+- risco baixo
+- sem ação emergencial
+
+## Segurança do MVP
+
+A aplicação exibe aviso fixo:
+
+`SIMULAÇÃO APENAS. NÃO ACIONA SERVIÇOS REAIS DE EMERGÊNCIA.`
+
+Nenhuma ação dispara PM/SAMU/Bombeiros/SMS real.
+
+## Ambiente
+
+Use `.env` na raiz para integrar LLM real no runtime CopilotKit:
 
 ```env
 OPENAI_API_KEY=...
 ```
 
-Sem chave, o cockpit continua 100% funcional em modo mock.
-
-## Fluxo webhook-first
-
-A entrada principal é:
-
-- `POST /api/webhook/call-transcript`
-
-A UI faz polling curto em:
-
-- `GET /api/incidents/latest`
-- `GET /api/incidents/:callId`
-
-Atualizações operacionais (checklist/status):
-
-- `PATCH /api/incidents/:callId`
-
-## cURL de teste
-
-### 1) Violência doméstica silenciosa
-
-```bash
-curl -X POST http://localhost:3000/api/webhook/call-transcript \
-  -H "Content-Type: application/json" \
-  -d '{
-    "callId": "CALL-VD-001",
-    "timestamp": "2026-05-16T14:02:31Z",
-    "callerPhone": "+55 11 99999-9999",
-    "transcript": "Não posso falar agora. Ele está aqui. Estou na Rua das Flores, Centro, São Paulo.",
-    "partial": false,
-    "source": "external-phone-transcriber",
-    "metadata": { "cityHint": "São Paulo", "channel": "phone", "language": "pt-BR" }
-  }'
-```
-
-### 2) Emergência médica
-
-```bash
-curl -X POST http://localhost:3000/api/webhook/call-transcript \
-  -H "Content-Type: application/json" \
-  -d '{
-    "callId": "CALL-MED-001",
-    "timestamp": "2026-05-16T14:05:31Z",
-    "transcript": "Meu avô está com dor no peito e falta de ar. Estamos perto da Estação Sé.",
-    "partial": false,
-    "source": "external-phone-transcriber",
-    "metadata": { "cityHint": "São Paulo" }
-  }'
-```
-
-### 3) Pessoa perdida
-
-```bash
-curl -X POST http://localhost:3000/api/webhook/call-transcript \
-  -H "Content-Type: application/json" \
-  -d '{
-    "callId": "CALL-LOST-001",
-    "timestamp": "2026-05-16T14:06:31Z",
-    "transcript": "Tem um idoso confuso e perdido perto do Mercado Modelo, na Praça Visconde de Cayru.",
-    "partial": false,
-    "source": "external-phone-transcriber",
-    "metadata": { "cityHint": "Salvador" }
-  }'
-```
-
-### 4) Possível trote
-
-```bash
-curl -X POST http://localhost:3000/api/webhook/call-transcript \
-  -H "Content-Type: application/json" \
-  -d '{
-    "callId": "CALL-TRT-001",
-    "timestamp": "2026-05-16T14:07:31Z",
-    "transcript": "Tem um senhor caído na Praça da Sé, mas já saí do local. Deve ter levantado. Deixa pra lá.",
-    "partial": false,
-    "source": "external-phone-transcriber",
-    "metadata": { "cityHint": "São Paulo" }
-  }'
-```
-
-### 5) Atualização parcial
-
-```bash
-curl -X POST http://localhost:3000/api/webhook/call-transcript \
-  -H "Content-Type: application/json" \
-  -d '{
-    "callId": "CALL-VD-001",
-    "timestamp": "2026-05-16T14:08:31Z",
-    "transcript": "Não posso falar agora. Ele está aqui. Estou no Centro.",
-    "partial": true,
-    "source": "external-phone-transcriber",
-    "metadata": { "cityHint": "São Paulo" }
-  }'
-```
-
-## Persistência local
-
-Arquivos gerados automaticamente:
-
-- `apps/web/.data/vozguard.sqlite` (fonte principal)
-- `apps/web/.data/vozguard-snapshot.json` (espelho para debug/export)
-
-## Segurança do MVP
-
-A interface sempre exibe aviso de simulação:
-
-`SIMULAÇÃO APENAS. NÃO ACIONA SERVIÇOS REAIS DE EMERGÊNCIA.`
-
-Nada dispara PM/SAMU/Bombeiros/SMS real.
+Sem chave, o cockpit continua funcional no modo mock operacional.

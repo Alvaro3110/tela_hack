@@ -1,121 +1,141 @@
-import type { CallTranscriptWebhookPayload } from "./types";
+import type { RawCallWebhookPayload } from "./types";
 
 type ScenarioPayload = {
   id: string;
   title: string;
-  payload: CallTranscriptWebhookPayload;
+  payload: RawCallWebhookPayload;
 };
 
 const now = () => new Date().toISOString();
 
+function baseCall(id: string) {
+  return {
+    id,
+    conversation_id: `conv-${id}`,
+    agent_id: "agt-001",
+    from_number: "+55 11 99999-9999",
+    to_number: "+55 11 4000-0000",
+    status: "completed",
+    started_at: now(),
+    duration_seconds: 180,
+    created_at: now(),
+    updated_at: now()
+  };
+}
+
 export const WEBHOOK_SCENARIOS: ScenarioPayload[] = [
+  {
+    id: "logistica-out-of-scope",
+    title: "Logística (fora de escopo)",
+    payload: {
+      call: baseCall("CALL-LOG-001"),
+      geo: { from_city: "São Paulo", from_state: "SP", from_country: "BR" },
+      counts: { segments: 4, client_turns: 2, agent_turns: 2 },
+      agents: {
+        classification: { data: { category: "Logística e Entrega", tags: ["entrega", "pedido"] } },
+        sentiment: { data: { label: "neutro", score: 0.52, rationale: "Cliente sem sinais de urgência." } }
+      },
+      summary: { summary_md: "Cliente relata atraso na entrega e pede protocolo." },
+      transcript: [
+        { id: "1", channel: "system", speaker: "agent", text: "Central de atendimento, como posso ajudar?", timestamp: now() },
+        { id: "2", channel: "mic", speaker: "client", text: "Meu pedido está com atraso na entrega e o rastreio indisponível.", timestamp: now() },
+        { id: "3", channel: "system", speaker: "agent", text: "Entendi, vou localizar o protocolo.", timestamp: now() },
+        { id: "4", channel: "mic", speaker: "client", text: "Obrigado, só preciso do status do produto.", timestamp: now() }
+      ]
+    }
+  },
   {
     id: "silent-domestic",
     title: "Violência doméstica silenciosa",
     payload: {
-      callId: "CALL-VD-001",
-      timestamp: now(),
-      callerPhone: "+55 11 99999-9999",
-      transcript: "Não posso falar agora. Ele está aqui. Estou na Rua das Flores, Centro, São Paulo.",
-      partial: false,
-      source: "external-phone-transcriber",
-      metadata: {
-        cityHint: "São Paulo",
-        channel: "phone",
-        language: "pt-BR"
-      }
-    }
-  },
-  {
-    id: "discreet-code",
-    title: "Código discreto",
-    payload: {
-      callId: "CALL-VD-002",
-      timestamp: now(),
-      callerPhone: "+55 11 98888-8888",
-      transcript: "Preciso do relatório azul. Pode vir aqui agora? Estou perto da Praça da Sé.",
-      partial: false,
-      source: "external-phone-transcriber",
-      metadata: {
-        cityHint: "São Paulo",
-        channel: "phone",
-        language: "pt-BR"
-      }
+      call: baseCall("CALL-VD-001"),
+      geo: { from_city: "São Paulo", from_state: "SP", from_country: "BR" },
+      counts: { segments: 4, client_turns: 2, agent_turns: 2 },
+      agents: { sentiment: { data: { label: "medo", score: 0.93, rationale: "Tonalidade de urgência e medo." } } },
+      summary: { summary_md: "Cliente não pode falar livremente e relata agressor próximo." },
+      transcript: [
+        { id: "1", channel: "system", speaker: "agent", text: "Pode me dizer o que está acontecendo?", timestamp: now() },
+        {
+          id: "2",
+          channel: "mic",
+          speaker: "client",
+          text: "Não posso falar agora. Ele está aqui. Estou na Rua das Flores, Centro, São Paulo.",
+          timestamp: now()
+        },
+        { id: "3", channel: "system", speaker: "agent", text: "Você está em local seguro?", timestamp: now() },
+        { id: "4", channel: "mic", speaker: "client", text: "Preciso do relatório azul.", timestamp: now() }
+      ]
     }
   },
   {
     id: "medical-emergency",
     title: "Emergência médica",
     payload: {
-      callId: "CALL-MED-001",
-      timestamp: now(),
-      callerPhone: "+55 11 97777-7777",
-      transcript: "Meu avô está com dor no peito, falta de ar e está suando muito. Estamos perto da Estação Sé.",
-      partial: false,
-      source: "external-phone-transcriber",
-      metadata: {
-        cityHint: "São Paulo",
-        channel: "phone",
-        language: "pt-BR"
-      }
+      call: baseCall("CALL-MED-001"),
+      geo: { from_city: "São Paulo", from_state: "SP", from_country: "BR" },
+      counts: { segments: 4, client_turns: 2, agent_turns: 2 },
+      transcript: [
+        { id: "1", channel: "system", speaker: "agent", text: "Qual é a situação?", timestamp: now() },
+        {
+          id: "2",
+          channel: "mic",
+          speaker: "client",
+          text: "Meu avô está com dor no peito, falta de ar, está suando muito e pálido perto da Estação Sé.",
+          timestamp: now()
+        },
+        { id: "3", channel: "system", speaker: "agent", text: "Ele está consciente?", timestamp: now() },
+        { id: "4", channel: "mic", speaker: "client", text: "Sim, mas está fraco.", timestamp: now() }
+      ]
+    }
+  },
+  {
+    id: "lost-elderly",
+    title: "Idoso perdido",
+    payload: {
+      call: baseCall("CALL-LOST-001"),
+      geo: { from_city: "Salvador", from_state: "BA", from_country: "BR" },
+      counts: { segments: 4, client_turns: 2, agent_turns: 2 },
+      transcript: [
+        { id: "1", channel: "system", speaker: "agent", text: "Pode descrever a ocorrência?", timestamp: now() },
+        {
+          id: "2",
+          channel: "mic",
+          speaker: "client",
+          text: "Tem um idoso confuso e perdido perto do Mercado Modelo, na Praça Visconde de Cayru.",
+          timestamp: now()
+        },
+        { id: "3", channel: "system", speaker: "agent", text: "Ele está sozinho?", timestamp: now() },
+        { id: "4", channel: "mic", speaker: "client", text: "Sim, sem documento e muito desorientado.", timestamp: now() }
+      ]
     }
   },
   {
     id: "possible-hoax",
     title: "Possível trote",
     payload: {
-      callId: "CALL-TRT-001",
-      timestamp: now(),
-      callerPhone: "+55 11 96666-6666",
-      transcript: "Tem um senhor caído na Praça da Sé. Acho que caiu, mas já saí do local. Deve ter levantado. Deixa pra lá.",
-      partial: false,
-      source: "external-phone-transcriber",
-      metadata: {
-        cityHint: "São Paulo",
-        channel: "phone",
-        language: "pt-BR"
-      }
-    }
-  },
-  {
-    id: "unknown-location",
-    title: "Localização desconhecida",
-    payload: {
-      callId: "CALL-UNK-001",
-      timestamp: now(),
-      callerPhone: "+55 11 95555-5555",
-      transcript: "Tem alguém em perigo aqui, não sei o endereço e não conheço essa região.",
-      partial: false,
-      source: "external-phone-transcriber",
-      metadata: {
-        cityHint: "São Paulo",
-        channel: "phone",
-        language: "pt-BR"
-      }
-    }
-  },
-  {
-    id: "partial-update",
-    title: "Transcrição parcial",
-    payload: {
-      callId: "CALL-VD-001",
-      timestamp: now(),
-      callerPhone: "+55 11 99999-9999",
-      transcript: "Não posso falar agora. Ele está aqui. Estou na Rua das Flores, Centro.",
-      partial: true,
-      source: "external-phone-transcriber",
-      metadata: {
-        cityHint: "São Paulo",
-        channel: "phone",
-        language: "pt-BR"
-      }
+      call: baseCall("CALL-TRT-001"),
+      geo: { from_city: "São Paulo", from_state: "SP", from_country: "BR" },
+      counts: { segments: 4, client_turns: 2, agent_turns: 2 },
+      transcript: [
+        { id: "1", channel: "system", speaker: "agent", text: "Qual é a emergência?", timestamp: now() },
+        {
+          id: "2",
+          channel: "mic",
+          speaker: "client",
+          text: "Tem um senhor caído na Praça da Sé, mas já saí do local. Acho que levantou. Deixa pra lá.",
+          timestamp: now()
+        },
+        { id: "3", channel: "system", speaker: "agent", text: "Você consegue confirmar a vítima?", timestamp: now() },
+        { id: "4", channel: "mic", speaker: "client", text: "Era brincadeira, só queria testar.", timestamp: now() }
+      ]
     }
   }
 ];
 
-export function cloneScenarioPayload(scenario: ScenarioPayload): CallTranscriptWebhookPayload {
-  return {
-    ...scenario.payload,
-    timestamp: now()
-  };
+export function cloneScenarioPayload(scenario: ScenarioPayload): RawCallWebhookPayload {
+  const next = structuredClone(scenario.payload);
+  next.call.started_at = now();
+  next.call.updated_at = now();
+  next.transcript = next.transcript.map((turn) => ({ ...turn, timestamp: now() }));
+  return next;
 }

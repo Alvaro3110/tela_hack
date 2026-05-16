@@ -1,0 +1,40 @@
+{
+  "call": {
+    "id": "CALL-VD-001",
+    "conversation_id": "conv-CALL-VD-001",
+    "agent_id": "agt-001",
+    "from_number": "+55 11 98888-7777",
+    "to_number": "+55 11 4000-0000",
+    "status": "completed",
+    "started_at": "2026-05-16T15:00:00Z",
+    "duration_seconds": 140
+  },
+  "geo": {
+    "from_city": "São Paulo",
+    "from_state": "SP",
+    "from_country": "BR"
+  },
+  "transcript": [
+    {
+      "id": "1",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Pode me dizer o que está acontecendo?",
+      "timestamp": "2026-05-16T15:00:05Z"
+    },
+    {
+      "id": "2",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Não posso falar agora. Ele está aqui. Estou na Rua das Flores, Centro, São Paulo.",
+      "timestamp": "2026-05-16T15:00:18Z"
+    },
+    {
+      "id": "3",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Preciso do relatório azul.",
+      "timestamp": "2026-05-16T15:00:31Z"
+    }
+  ]
+}

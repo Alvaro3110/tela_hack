@@ -1,8 +1,8 @@
-import type { EmergencyOccurrence, SupportPoint } from "./types";
+import type { EmergencyCategory, EmergencyOccurrence, SupportPoint } from "./types";
 
 const knownLocations = [
   {
-    match: ["rua das flores", "centro sao paulo", "são paulo", "centro, sao paulo"],
+    match: ["rua das flores", "centro sao paulo", "sao paulo", "centro, sao paulo"],
     estimatedAddress: "Rua das Flores, Centro — São Paulo/SP",
     city: "São Paulo",
     state: "SP",
@@ -11,7 +11,7 @@ const knownLocations = [
     referencePoints: ["Centro de São Paulo", "Praça da Sé", "Estação Sé"]
   },
   {
-    match: ["praça da sé", "praca da se", "estação sé", "estacao se", "catedral da sé", "catedral da se"],
+    match: ["praca da se", "estacao se", "catedral da se"],
     estimatedAddress: "Praça da Sé — São Paulo/SP",
     city: "São Paulo",
     state: "SP",
@@ -20,7 +20,7 @@ const knownLocations = [
     referencePoints: ["Estação Sé", "Catedral da Sé"]
   },
   {
-    match: ["rodoviária novo rio", "rodoviaria novo rio", "avenida francisco bicalho", "francisco bicalho"],
+    match: ["rodoviaria novo rio", "avenida francisco bicalho", "francisco bicalho"],
     estimatedAddress: "Rodoviária Novo Rio — Rio de Janeiro/RJ",
     city: "Rio de Janeiro",
     state: "RJ",
@@ -29,7 +29,7 @@ const knownLocations = [
     referencePoints: ["Avenida Francisco Bicalho", "Área de embarque"]
   },
   {
-    match: ["mercado modelo", "praça visconde de cayru", "praca visconde de cayru", "elevador lacerda"],
+    match: ["mercado modelo", "praca visconde de cayru", "elevador lacerda"],
     estimatedAddress: "Mercado Modelo — Salvador/BA",
     city: "Salvador",
     state: "BA",
@@ -38,7 +38,7 @@ const knownLocations = [
     referencePoints: ["Praça Visconde de Cayru", "Elevador Lacerda"]
   },
   {
-    match: ["parque da redenção", "parque da redencao", "brique da redenção", "brique da redencao", "parque farroupilha"],
+    match: ["parque da redencao", "brique da redencao", "parque farroupilha"],
     estimatedAddress: "Parque da Redenção — Porto Alegre/RS",
     city: "Porto Alegre",
     state: "RS",
@@ -57,7 +57,7 @@ const supportPointsByCity: Record<string, Omit<SupportPoint, "distanceKm">[]> = 
   "Rio de Janeiro": [
     { name: "Hospital Souza Aguiar", kind: "hospital", city: "Rio de Janeiro", state: "RJ", priority: "critica" },
     { name: "Base PM Novo Rio", kind: "base_policial", city: "Rio de Janeiro", state: "RJ", priority: "alta" },
-    { name: "Terminal Rodoviário Novo Rio", kind: "terminal", city: "Rio de Janeiro", state: "RJ", priority: "media" }
+    { name: "Terminal Novo Rio", kind: "terminal", city: "Rio de Janeiro", state: "RJ", priority: "media" }
   ],
   Salvador: [
     { name: "Hospital Geral do Estado", kind: "hospital", city: "Salvador", state: "BA", priority: "critica" },
@@ -77,39 +77,44 @@ const normalize = (text: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 
-function getMatches(transcript: string) {
-  const normalized = normalize(transcript);
+function getMatches(text: string) {
+  const n = normalize(text);
   return knownLocations
     .map((location) => {
-      const score = location.match.reduce((acc, token) => {
-        return normalized.includes(normalize(token)) ? acc + 1 : acc;
-      }, 0);
+      const score = location.match.reduce((acc, token) => (n.includes(token) ? acc + 1 : acc), 0);
       return { location, score };
     })
-    .filter((row) => row.score > 0)
+    .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score);
 }
 
-export async function geocodeFromTranscript(transcript: string, metadata?: { cityHint?: string }) {
+export async function geocodeFromTranscript(
+  transcript: string,
+  metadata?: {
+    cityHint?: string | null;
+    stateHint?: string | null;
+    countryHint?: string | null;
+    zipHint?: string | null;
+  }
+): Promise<EmergencyOccurrence["location"]> {
   const matches = getMatches(transcript);
 
-  if (matches.length === 0) {
-    const cityHint = metadata?.cityHint;
+  if (!matches.length) {
     return {
       rawText: transcript,
       estimatedAddress: "Localização não confirmada",
-      city: cityHint,
-      state: undefined,
+      city: metadata?.cityHint ?? undefined,
+      state: metadata?.stateHint ?? undefined,
       lat: undefined,
       lng: undefined,
-      confidence: "desconhecida" as const,
-      source: cityHint ? ("metadata" as const) : ("transcript" as const),
+      confidence: "desconhecida",
+      source: metadata?.cityHint || metadata?.stateHint ? "metadata" : "none",
       referencePoints: []
     };
   }
 
   const best = matches[0];
-  const confidence = best.score >= 3 ? "alta" : best.score === 2 ? "media" : "baixa";
+  const confidence: EmergencyOccurrence["location"]["confidence"] = best.score >= 3 ? "alta" : best.score === 2 ? "media" : "baixa";
 
   return {
     rawText: transcript,
@@ -119,14 +124,15 @@ export async function geocodeFromTranscript(transcript: string, metadata?: { cit
     lat: best.location.lat,
     lng: best.location.lng,
     confidence,
-    source: "mcp" as const,
-    referencePoints: best.location.referencePoints
+    source: "mcp",
+    referencePoints: [...best.location.referencePoints]
   };
 }
 
 export async function validateLocation(occurrence: EmergencyOccurrence) {
-  const matches = getMatches(occurrence.transcript);
-  const matchedCities = Array.from(new Set(matches.map((entry) => entry.location.city)));
+  const text = `${occurrence.clientTranscript}\n${occurrence.transcript}`;
+  const matches = getMatches(text);
+  const matchedCities = [...new Set(matches.map((entry) => entry.location.city))];
   const divergences: string[] = [];
 
   if (!matches.length) {
@@ -137,10 +143,6 @@ export async function validateLocation(occurrence: EmergencyOccurrence) {
     divergences.push(`Foram citadas cidades diferentes no relato: ${matchedCities.join(", ")}.`);
   }
 
-  if (occurrence.location.city && matchedCities.length > 0 && !matchedCities.includes(occurrence.location.city)) {
-    divergences.push(`Cidade detectada (${occurrence.location.city}) difere das referências do texto.`);
-  }
-
   return {
     consistent: divergences.length === 0,
     divergences,
@@ -148,7 +150,10 @@ export async function validateLocation(occurrence: EmergencyOccurrence) {
   } as const;
 }
 
-export async function getNearbySupportPoints(location: EmergencyOccurrence["location"], category: string): Promise<SupportPoint[]> {
+export async function getNearbySupportPoints(
+  location: EmergencyOccurrence["location"],
+  category: EmergencyCategory
+): Promise<SupportPoint[]> {
   if (!location.city) return [];
 
   const base = supportPointsByCity[location.city] ?? [];

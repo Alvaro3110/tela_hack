@@ -1,0 +1,32 @@
+{
+  "call": {
+    "id": "CALL-TRT-001",
+    "conversation_id": "conv-CALL-TRT-001",
+    "agent_id": "agt-001",
+    "from_number": "+55 11 93333-3333",
+    "to_number": "+55 11 4000-0000",
+    "status": "completed",
+    "started_at": "2026-05-16T18:00:00Z",
+    "duration_seconds": 95
+  },
+  "geo": {
+    "from_city": "São Paulo",
+    "from_state": "SP"
+  },
+  "transcript": [
+    {
+      "id": "1",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Tem um senhor caído na Praça da Sé, mas já saí do local. Acho que levantou. Deixa pra lá.",
+      "timestamp": "2026-05-16T18:00:10Z"
+    },
+    {
+      "id": "2",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Era brincadeira, só queria testar.",
+      "timestamp": "2026-05-16T18:00:23Z"
+    }
+  ]
+}

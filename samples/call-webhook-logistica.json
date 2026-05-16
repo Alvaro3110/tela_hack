@@ -1,0 +1,74 @@
+{
+  "call": {
+    "id": "CALL-LOG-001",
+    "conversation_id": "conv-CALL-LOG-001",
+    "agent_id": "agt-001",
+    "from_number": "+55 11 99999-9999",
+    "to_number": "+55 11 4000-0000",
+    "status": "completed",
+    "started_at": "2026-05-16T14:02:31Z",
+    "duration_seconds": 180,
+    "created_at": "2026-05-16T14:02:31Z",
+    "updated_at": "2026-05-16T14:05:31Z"
+  },
+  "geo": {
+    "from_city": "São Paulo",
+    "from_state": "SP",
+    "from_country": "BR"
+  },
+  "counts": {
+    "segments": 4,
+    "client_turns": 2,
+    "agent_turns": 2
+  },
+  "agents": {
+    "sentiment": {
+      "status": "done",
+      "data": {
+        "label": "neutro",
+        "score": 0.52,
+        "rationale": "Cliente sem sinais de urgência."
+      }
+    },
+    "classification": {
+      "status": "done",
+      "data": {
+        "category": "Logística e Entrega",
+        "tags": ["entrega", "pedido", "protocolo"]
+      }
+    }
+  },
+  "summary": {
+    "summary_md": "Cliente reporta atraso de entrega e solicita protocolo."
+  },
+  "transcript": [
+    {
+      "id": "1",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Central de atendimento, em que posso ajudar?",
+      "timestamp": "2026-05-16T14:02:35Z"
+    },
+    {
+      "id": "2",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Meu pedido está com atraso na entrega e o rastreio indisponível.",
+      "timestamp": "2026-05-16T14:02:45Z"
+    },
+    {
+      "id": "3",
+      "channel": "system",
+      "speaker": "agent",
+      "text": "Certo, vou localizar o protocolo.",
+      "timestamp": "2026-05-16T14:03:02Z"
+    },
+    {
+      "id": "4",
+      "channel": "mic",
+      "speaker": "client",
+      "text": "Obrigado, só preciso do status do produto.",
+      "timestamp": "2026-05-16T14:03:14Z"
+    }
+  ]
+}
